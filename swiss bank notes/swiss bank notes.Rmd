@@ -15,6 +15,7 @@ library(ggplot2)
 ```{r}
 data = read.table('bank2.dat')
 colnames(data) = c('X1','X2','X3','X4','X5','X6')
+data = data.frame(data, genuine = c(rep(1, 100), rep(0, 100)))
 attach(data)
 head(data)
 ```
@@ -35,26 +36,110 @@ sapply(data, function(x) sum(is.na(x)))
 ```{r}
 pairs(data, upper.panel = NULL)
 
-ggplot(data.frame(X5, X6), aes(x = X5, y = X6, color = c(rep(1, 100), rep(2, 100)))) +
-geom_point() +
-labs(title = "Swiss bank notes") 
- 
+pairs_plot = function(x, y, x_name, y_name){
+  par(mar = c(5, 5, 4, 10))
+  plot(x, y, main = "Swiss bank notes", xlab = x_name, ylab = y_name)
+  points(x[1:100], y[1:100], col = "blue")
+  points(x[101:200], y[101:200], col = "red")
+  legend("topright", legend = c("Genuine", "Counterfeit"), col = c("blue", "red"), pch = 1, xpd = TRUE, inset = c(-0.3, 0))
+  
+  #ggplot(data.frame(X5, X6), aes(x = X5, y = X6, color = genuine)) +
+  #geom_point() +
+  #labs(title = "Swiss bank notes")
+}
+
+num = combn(1:6, 2)
+for (i in 1:ncol(num)) {
+  x = paste0("X", num[1, ][i])
+  y = paste0("X", num[2, ][i])
+  pairs_plot(get(x), get(y), x, y)
+}
+
+
+```
+
+# box plot
+```{r}
+name = NULL
+for (i in 1:(ncol(data) - 1)) {
+  name = c(name, paste0("X", i, "_Genuine"))
+  name = c(name, paste0("X", i, "_Counterfeit"))
+}
+
+groups = list()
+for (i in 1:length(name)){
+  if (i %% 2 == 1) {
+    groups[[name[i]]] = data[1:100, as.integer(i / 2) + 1]
+  } else {
+    groups[[name[i]]] = data[101:200, as.integer(i / 2)]
+  }
+}
+
+means <- sapply(groups, mean)
+
+for (i in seq(1, length(name) ,by = 2)){
+  par(mar = c(5, 5, 4, 10))
+  boxplot(groups[i:(i + 1)], names = name[i:(i + 1)], frame = TRUE, main = "Swiss bank notes")
+  
+  for (j in 0:1) {
+    lines(c(j + 0.6, j + 1.4), rep(means[[name[(i + j)]]], 2), lty = "dotted", lwd = 1.2)
+  }
+}
+```
+
+
+# regression (GLM)
+```{r}
+regression_model = lm(genuine ~ X1 + X2 + X3 + X4 + X5 + X6)
+print(regression_model)
+```
+
+```{r}
+plot(regression_model)
+```
+
+
+```{r}
+summary(regression_model)
+```
+
+
+```{r}
+anova(regression_model)
+```
+
+
+```{r}
+step(regression_model)
 ```
 
 
 
 
+# logistic regression
+```{r}
+logistic_model = glm(genuine ~ X1 + X2 + X3 + X4 + X5 + X6, family = binomial)
+print(logistic_model)
+```
+
+```{r}
+plot(logistic_model)
+```
 
 
+```{r}
+summary(logistic_model)
+```
 
 
+```{r}
+anova(logistic_model)
+```
 
 
-
-
-
-
-
+```{r}
+step(logistic_model)
+```
 
 
 
