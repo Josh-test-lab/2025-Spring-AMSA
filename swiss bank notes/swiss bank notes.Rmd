@@ -1,0 +1,130 @@
+---
+title: "swiss bank notes"
+output: html_notebook
+date: "2025-03-17"
+---
+
+# library
+```{r}
+library(ggplot2)
+```
+
+
+
+# load dataset
+```{r}
+data = read.table('bank2.dat')
+colnames(data) = c('X1','X2','X3','X4','X5','X6')
+attach(data)
+head(data)
+```
+
+
+# summary
+```{r}
+print('Quartiles:')
+summary(data)
+
+print('NAs:')
+sapply(data, function(x) sum(is.na(x)))
+```
+
+
+
+# pairs plot
+```{r}
+pairs(data, upper.panel = NULL)
+
+ggplot(data.frame(X5, X6), aes(x = X5, y = X6, color = c(rep(1, 100), rep(2, 100)))) +
+geom_point() +
+labs(title = "Swiss bank notes") 
+ 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
