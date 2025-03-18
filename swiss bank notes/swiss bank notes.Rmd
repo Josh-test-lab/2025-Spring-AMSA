@@ -10,7 +10,6 @@ library(ggplot2)
 ```
 
 
-
 # load dataset
 ```{r}
 data = read.table('bank2.dat')
@@ -77,9 +76,9 @@ for (i in 1:length(name)){
 
 means <- sapply(groups, mean)
 
+par(mfrow=c(1,3))
 for (i in seq(1, length(name) ,by = 2)){
-  par(mar = c(5, 5, 4, 10))
-  boxplot(groups[i:(i + 1)], names = name[i:(i + 1)], frame = TRUE, main = "Swiss bank notes")
+  boxplot(groups[i:(i + 1)], names = name[i:(i + 1)], frame = TRUE, main = "Swiss bank notes", cex.axis=0.99)
   
   for (j in 0:1) {
     lines(c(j + 0.6, j + 1.4), rep(means[[name[(i + j)]]], 2), lty = "dotted", lwd = 1.2)
