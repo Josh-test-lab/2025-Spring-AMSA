@@ -2,7 +2,7 @@
 title: "swiss bank notes"
 output: html_notebook
 date: "2025-03-17"
-author: "Hsu, Yao-Chih, Wang, X.C, Sin, Wen-Lee"
+author: "Hsu, Yao-Chih, Wang, Xuan-Chun, Sin, Wen-Lee"
 ---
 
 # library
@@ -28,6 +28,24 @@ summary(data)
 
 print('NAs:')
 sapply(data, function(x) sum(is.na(x)))
+```
+
+
+# correlation coefficient
+```{r}
+library(ggcorrplot)
+
+cor_matrix = cor(data)
+
+ggcorrplot(cor_matrix, 
+           method = "circle",
+           type = "full",
+           lab = TRUE,
+           lab_size = 3,
+           colors = c("blue", "white", "red"),
+           outline.color = "gray",
+           legend.title = "Correlation",
+           show.legend = TRUE)
 ```
 
 
