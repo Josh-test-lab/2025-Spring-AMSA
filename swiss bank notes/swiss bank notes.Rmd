@@ -2,6 +2,7 @@
 title: "swiss bank notes"
 output: html_notebook
 date: "2025-03-17"
+author: "Hsu, Yao-Chih, Wang, X.C, Sin, Wen-Lee"
 ---
 
 # library
