@@ -105,61 +105,6 @@ for (i in seq(1, length(name) ,by = 2)){
 }
 ```
 
-
-# regression (GLM)
-```{r}
-regression_model = lm(genuine ~ X1 + X2 + X3 + X4 + X5 + X6)
-print(regression_model)
-```
-
-```{r}
-plot(regression_model)
-```
-
-
-```{r}
-summary(regression_model)
-```
-
-
-```{r}
-anova(regression_model)
-```
-
-
-```{r}
-step(regression_model)
-```
-
-
-
-
-# logistic regression
-```{r}
-logistic_model = glm(genuine ~ X1 + X2 + X3 + X4 + X5 + X6, family = binomial)
-print(logistic_model)
-```
-
-```{r}
-plot(logistic_model)
-```
-
-
-```{r}
-summary(logistic_model)
-```
-
-
-```{r}
-anova(logistic_model)
-```
-
-
-```{r}
-step(logistic_model)
-```
-
-
 # histogram
 ```{r}
 data_Genuine = data[1:100, 1:6]   
@@ -255,11 +200,6 @@ for (i in 1:num_vars) {
 ```{r}
 library(KernSmooth)
 
-data = read.table("bank2.dat")
-
-par(mfrow = c(1, 1))
-
-
 for (i in 1:6) {
   
   data_Genuine = data[1:100, i]   
@@ -277,11 +217,11 @@ for (i in 1:6) {
   plot(fh1, type = "l", lwd = 2,
        xlab = "Counterfeit / Genuine", 
        ylab = paste0("Density estimates for X", i, sep = ""),
-       col = "blue", main = paste("Swiss bank notes - X", i),
+       col = "blue", main = paste0("Swiss bank notes - X", i),
        xlim = c(x_min, x_max), ylim = c(0, y_max),
        axes = FALSE) 
   
-  lines(fh2, lty = "dotted", lwd = 2, col = "red3")
+  lines(fh2, lty = "dotted", lwd = 2, col = "red")
 
   axis(side = 1, at = x_ticks, labels = x_ticks)
   axis(side = 2)
@@ -289,12 +229,11 @@ for (i in 1:6) {
 
   legend("topright",
          legend = c("Genuine", "Counterfeit"),
-         col = c("blue", "red3"),
+         col = c("blue", "red"),
          lty = c("solid", "dotted"),
          lwd = 2,
          cex = 0.8)
 }
-
 ```
 
 
@@ -302,21 +241,15 @@ for (i in 1:6) {
 
 # 3D scatterplot
 ```{r}
-if (!require(lattice)) install.packages("lattice")
 library(lattice)
 library(grid)
 
-data = read.table("bank2.dat")
-names(data) = paste0("X", 1:6)
-
-group1 = rep(1, 100)
-group2 = rep(2, 100)
-groups = c(group1, group2)
+groups = data[, 7]
 
 pch_types = c(1, 1)              
 colors = c("blue", "red")        
-pch_group = pch_types[groups]
-col_group = colors[groups]
+pch_group = pch_types[ifelse(groups == 0, 1, 2)]
+col_group = colors[ifelse(groups == 0, 1, 2)]
 
 combos = combn(1:6, 3)
 
@@ -325,11 +258,9 @@ n_cols = 1
 plots_per_page = n_rows * n_cols   
 
 for (page in seq(1, ncol(combos), by = plots_per_page)) {
-  
   grid.newpage()
 
   for (i in 0:(plots_per_page - 1)) {
-    
     index = page + i
     if (index > ncol(combos)) break
 
@@ -366,7 +297,7 @@ for (page in seq(1, ncol(combos), by = plots_per_page)) {
             text = list(c("Genuine", "Counterfeit")),
             border = FALSE
           )
-)
+        )
 
     print(p, split = c((i %% n_cols) + 1, (i %/% n_cols) + 1, n_cols, n_rows), more = TRUE)
   }
@@ -376,29 +307,21 @@ for (page in seq(1, ncol(combos), by = plots_per_page)) {
 
 #Andrews' Curves
 ```{r}
-libraries = c("tourr")
-lapply(libraries, function(x) if (!(x %in% installed.packages())) {
-  install.packages(x)
-})
-lapply(libraries, library, quietly = TRUE, character.only = TRUE)
-
-# 讀取資料
-data = read.table("bank2.dat")
+library(tourr)
 
 # x：全部 200 筆資料
 x = data[1:200, ]
 
 # 初始化 y（做 zero-one scaling）
 y = NULL
-i = 1
-while (i <= 6) {
+
+for (i in 1:6) {
   z = (x[, i] - min(x[, i])) / (max(x[, i]) - min(x[, i]))  # zero-one scaling
   y = cbind(y, z)
-  i = i + 1
 }
 
 # 定義類別
-Type = c(rep(1, 100), rep(2, 100))  # 前 100 筆為 Type 1，後 100 筆為 Type 2
+Type = data[, 7]  # 前 100 筆為 Type 1，後 100 筆為 Type 2
 f = as.integer(Type)
 
 # 定義 t 軸範圍
@@ -409,20 +332,20 @@ plot(grid,
      andrews(y[1, ])(grid), 
      type = "l", 
      lwd = 1.2, 
-     main = "Andrews curves (All Bank data)", 
+     main = "Andrews' curves (All Bank data)", 
      axes = FALSE, 
      frame = TRUE, 
      ylim = c(-0.5, 0.6), 
      ylab = "", 
      xlab = "", 
-     col = ifelse(f[1] == 1, "blue", "red3"), 
+     col = ifelse(f[1] == 1, "blue", "red"), 
      lty = ifelse(f[1] == 1, "solid", "dotted"))
 
 # 繪製剩餘曲線
 for (i in 2:200) {
   lines(grid, 
         andrews(y[i, ])(grid), 
-        col = ifelse(f[i] == 1, "blue", "red3"), 
+        col = ifelse(f[i] == 1, "blue", "red"), 
         lwd = 1.2, 
         lty = ifelse(f[i] == 1, "solid", "dotted"))
 }
@@ -434,13 +357,92 @@ axis(side = 1, at = seq(0, 7, 1), labels = seq(0, 7, 1))
 # 加上圖例
 legend("topright", 
        legend = c("Genuine", "Counterfeit"), 
-       col = c("blue", "red3"), 
+       col = c("blue", "red"), 
        lwd = 1.5, 
        lty = c("solid", "dotted"))
 ```
 
 
+#Logistic Regression
+```{r}
+# summary
+set.seed(123456)
+split = sample.split(data,SplitRatio = 0.7)
+train_reg = subset(data, split =='TRUE')
+test_reg = subset(data, split == 'FALSE')
 
+logistic_model = glm(factor(genuine) ~ X1+X2+X3+X4+X5+X6, data = train_reg,
+                     family = binomial(link = 'logit'), 
+                     control = list(maxit=1000))
+
+logistic_model
+summary(logistic_model)
+```
+
+```{r}
+predict_reg = predict(logistic_model,test_reg,type='response')
+predict_reg
+```
+
+```{r}
+predict_reg = ifelse(predict_reg >0.5,1,0)
+table(test_reg$genuine,predict_reg)
+missing_classerr = mean(predict_reg!=test_reg$genuine)
+print(paste('Accuracy=',1-missing_classerr))
+
+ROCPred = prediction(predict_reg, test_reg$genuine)
+ROCPer = performance(ROCPred, measure = 'tpr',x.measure = 'fpr')
+
+auc = performance(ROCPred,measure='auc')
+auc = auc@y.values[[1]]
+auc
+
+plot(ROCPer)
+plot(ROCPer,colourise=TRUE,print.cuttoffs.at=seq(0.1,by=0.1),
+     main='ROC Curve')
+abline(a=0,b=1)
+auc = round(auc,4)
+legend(.6,.4, auc,title = 'AUC',cex=1)
+```
+
+
+
+
+# Random Forest
+```{r}
+library(randomForest)
+
+# summary
+set.seed(12345)
+data$genuine = as.factor(data$genuine)
+split = sample.split(data,SplitRatio = 0.6)
+train_rf = subset(data, split =='TRUE')
+test_rf = subset(data, split == 'FALSE')
+rf = randomForest(genuine~ X1+X2+X3+X4+X5+X6,data =train_rf,ntree=500)
+print(rf)
+```
+
+```{r}
+set.seed(12345)
+importance(rf)
+varImpPlot(rf)
+```
+
+```{r}
+pred1 = predict(rf,test_rf, type='prob')
+perf = prediction(pred1[,2], test_rf$genuine)
+auc = performance(perf, 'auc')
+auc_value = auc@y.values[[1]]  # Extract the numeric AUC value
+
+pred3 = performance(perf, 'tpr', 'fpr')
+
+# Plot the ROC curve
+plot(pred3, main="ROC Curve for Random Forest", col=2, lwd=2)
+abline(a=0, b=1, lwd=2, lty=2, col='gray')
+
+# Add AUC value to the plot
+text(0.6, 0.2, paste("AUC =", round(auc_value, 3)), col=2, cex=1.2)
+```
 
 
 
