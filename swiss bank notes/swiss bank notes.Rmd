@@ -398,7 +398,7 @@ auc = auc@y.values[[1]]
 auc
 
 plot(ROCPer)
-plot(ROCPer,colourise=TRUE,print.cuttoffs.at=seq(0.1,by=0.1),
+plot(ROCPer,colourise=TRUE,print.cuttoffs.at=seq(0.1,by=0.1), col=2, lwd=2,
      main='ROC Curve')
 abline(a=0,b=1)
 auc = round(auc,4)
