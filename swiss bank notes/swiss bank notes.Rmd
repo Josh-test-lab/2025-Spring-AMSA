@@ -272,7 +272,7 @@ for (page in seq(1, ncol(combos), by = plots_per_page)) {
     y_data = data[[y_name]]
     z_data = data[[z_name]]
 
-    p = cloud(z_data ~ y_data * x_data,
+    p = cloud(z_data ~ x_data * y_data,
           pch = pch_group,
           col = col_group,
           cex = 1.2,
@@ -304,8 +304,80 @@ for (page in seq(1, ncol(combos), by = plots_per_page)) {
 }
 ```
 
+# 3d plotly scatter plot
 
-#Andrews' Curves
+```{r}
+library(plotly)
+library(htmlwidgets)
+
+# 假設你的 data 是一個 data.frame，包含 X1, X2, X6 和 groups 列
+
+# 取出 X1, X2 和 X6 變數
+x_data = data$X1
+y_data = data$X2
+z_data = data$X6
+groups = data[, 7]
+
+# 將 groups 轉換為因子，這樣我們可以用顏色區分
+groups = factor(groups, levels = c(0, 1), labels = c("Genuine", "Counterfeit"))
+
+# 計算 x, y, z 軸的範圍
+x_range <- range(x_data)
+y_range <- range(y_data)
+z_range <- range(z_data)
+
+# 將 x, y, z 軸數據縮放到 [0, 1] 範圍
+x_scaled = (x_data - x_range[1]) / (x_range[2] - x_range[1])
+y_scaled = (y_data - y_range[1]) / (y_range[2] - y_range[1])
+z_scaled = (z_data - z_range[1]) / (z_range[2] - z_range[1])
+
+# 計算刻度點，並將其四捨五入到小數點後 1 位
+tick_positions = seq(0, 1, length.out = 5)
+tick_labels_x = round(seq(x_range[1], x_range[2], length.out = 5), 1)
+tick_labels_y = round(seq(y_range[1], y_range[2], length.out = 5), 1)
+tick_labels_z = round(seq(z_range[1], z_range[2], length.out = 5), 1)
+
+# 每個點的 hover 標籤，顯示原始數據值
+hover_text <- paste0(
+  "X1: ", round(x_data, 1), "<br>",
+  "X2: ", round(y_data, 1), "<br>",
+  "X6: ", round(z_data, 1)
+)
+
+# 使用 plotly 生成 3D 散點圖
+fig <- plot_ly(
+  x = x_scaled,
+  y = y_scaled,
+  z = z_scaled,
+  color = groups,
+  colors = c("blue", "red"),
+  type = "scatter3d",
+  mode = "markers",
+  marker = list(size = 5),
+  text = hover_text,  # 設定 hover 的文字
+  hoverinfo = "text"  # 顯示 text 而不是縮放後的座標
+)
+
+# 添加標題和標籤，並設定軸範圍與標籤
+fig <- fig %>% layout(
+  title = "3D Scatter Plot of X1, X2, X6",
+  scene = list(
+    xaxis = list(title = "X1", range = c(0, 1), tickvals = tick_positions, ticktext = tick_labels_x),
+    yaxis = list(title = "X2", range = c(0, 1), tickvals = tick_positions, ticktext = tick_labels_y),
+    zaxis = list(title = "X6", range = c(0, 1), tickvals = tick_positions, ticktext = tick_labels_z)
+  )
+)
+
+# 輸出為 HTML 檔案
+saveWidget(fig, "3d_scatter_plot.html")
+
+```
+
+
+
+
+
+# Andrews' Curves
 ```{r}
 library(tourr)
 
@@ -365,6 +437,9 @@ legend("topright",
 
 #Logistic Regression
 ```{r}
+library(caTools)
+library(ROCR)
+
 # summary
 set.seed(123456)
 split = sample.split(data,SplitRatio = 0.7)
