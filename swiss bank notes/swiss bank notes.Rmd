@@ -460,7 +460,7 @@ predict_reg
 ```
 
 ```{r}
-predict_reg = ifelse(predict_reg >0.5,1,0)
+predict_reg = ifelse(predict_reg > 0.5, 1, 0)
 table(test_reg$genuine,predict_reg)
 missing_classerr = mean(predict_reg!=test_reg$genuine)
 print(paste('Accuracy=',1-missing_classerr))
@@ -472,7 +472,6 @@ auc = performance(ROCPred,measure='auc')
 auc = auc@y.values[[1]]
 auc
 
-plot(ROCPer)
 plot(ROCPer,colourise=TRUE,print.cuttoffs.at=seq(0.1,by=0.1), col=2, lwd=2,
      main='ROC Curve')
 abline(a=0,b=1)
@@ -505,7 +504,9 @@ varImpPlot(rf)
 
 ```{r}
 pred1 = predict(rf,test_rf, type='prob')
+pred1
 perf = prediction(pred1[,2], test_rf$genuine)
+perf
 auc = performance(perf, 'auc')
 auc_value = auc@y.values[[1]]  # Extract the numeric AUC value
 
@@ -521,7 +522,10 @@ text(0.6, 0.2, paste("AUC =", round(auc_value, 3)), col=2, cex=1.2)
 
 
 
+# PCA
+```{r}
 
+```
 
 
 
